@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PoA-MAPF Research Dashboard</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d1117;
+      --card: #161b22;
+      --text: #c9d1d9;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --accent2: #7ee787;
+      --border: #30363d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.5;
+    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem 3rem; }
+    h1, h2 { margin: 0 0 .5rem; }
+    .subtitle { color: var(--muted); margin-bottom: 1.5rem; }
+    .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+    .equation { overflow-x: auto; padding: .25rem 0; }
+    canvas { width: 100%; max-height: 320px; background: #0f141b; border-radius: 8px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    th, td { padding: .5rem; border-bottom: 1px solid var(--border); text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    .footer { color: var(--muted); margin-top: 1rem; font-size: .9rem; }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>Price of Anarchy in MAPF</h1>
+    <p class="subtitle">Minimal dark-mode dashboard for GitHub Pages: equations, Braess paradox plots, and simulation results.</p>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Core Equations</h2>
+        <div class="equation"><strong>PoA = SocialCost(Worst Nash Equilibrium) / SocialCost(Optimal Centralized Solution)</strong></div>
+        <div class="equation"><strong>c<sub>e</sub>(x) = α<sub>e</sub>x<sup>p</sup> + β<sub>e</sub></strong> (default p = 4)</div>
+        <div class="equation"><strong>min<sub>f</sub> Σ<sub>e</sub> ∫<sub>0</sub><sup>f<sub>e</sub></sup> c<sub>e</sub>(t)dt</strong> subject to flow conservation</div>
+      </article>
+
+      <article class="card">
+        <h2>Summary (Braess setup)</h2>
+        <p id="summary">Loading results...</p>
+      </article>
+    </section>
+
+    <section class="grid" style="margin-top: 1rem;">
+      <article class="card">
+        <h2>Average Travel Time vs Agents</h2>
+        <canvas id="avgTimeChart" aria-label="Average travel time chart"></canvas>
+      </article>
+      <article class="card">
+        <h2>Price of Anarchy vs Agents</h2>
+        <canvas id="poaChart" aria-label="PoA chart"></canvas>
+      </article>
+    </section>
+
+    <section class="card" style="margin-top: 1rem;">
+      <h2>Result Table</h2>
+      <table id="resultsTable">
+        <thead>
+          <tr>
+            <th>Agents</th>
+            <th>NE (shortcut)</th>
+            <th>NE (no shortcut)</th>
+            <th>Social Optimum</th>
+            <th>PoA</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <p class="footer">Data source: <code>docs/results.json</code> generated from project simulation code.</p>
+    </section>
+
+    <p class="footer">Host on GitHub Pages by enabling Pages from the <code>docs/</code> folder in repository settings.</p>
+  </main>
+
+  <script>
+    function drawLineChart(canvasId, labels, series, yMin) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+      const width = canvas.width = canvas.clientWidth * window.devicePixelRatio;
+      const height = canvas.height = 320 * window.devicePixelRatio;
+      const pad = 40 * window.devicePixelRatio;
+
+      const allValues = series.flatMap(s => s.values);
+      const minY = Math.min(yMin ?? Math.min(...allValues), ...allValues);
+      const maxY = Math.max(...allValues);
+      const ySpan = Math.max(1e-9, maxY - minY);
+
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = '#0f141b';
+      ctx.fillRect(0, 0, width, height);
+      ctx.strokeStyle = '#30363d';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 5; i++) {
+        const y = pad + (height - 2 * pad) * (i / 5);
+        ctx.beginPath();
+        ctx.moveTo(pad, y);
+        ctx.lineTo(width - pad, y);
+        ctx.stroke();
+      }
+
+      function sx(i) {
+        return pad + (labels.length <= 1 ? 0 : (width - 2 * pad) * (i / (labels.length - 1)));
+      }
+      function sy(v) {
+        return height - pad - (height - 2 * pad) * ((v - minY) / ySpan);
+      }
+
+      ctx.fillStyle = '#8b949e';
+      ctx.font = `${12 * window.devicePixelRatio}px sans-serif`;
+      labels.forEach((label, i) => {
+        const x = sx(i);
+        ctx.fillText(String(label), x - 8 * window.devicePixelRatio, height - 12 * window.devicePixelRatio);
+      });
+
+      for (const s of series) {
+        ctx.strokeStyle = s.color;
+        ctx.lineWidth = 2 * window.devicePixelRatio;
+        ctx.beginPath();
+        s.values.forEach((v, i) => {
+          const x = sx(i);
+          const y = sy(v);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      }
+
+      let lx = pad;
+      const ly = 16 * window.devicePixelRatio;
+      for (const s of series) {
+        ctx.fillStyle = s.color;
+        ctx.fillRect(lx, ly, 14 * window.devicePixelRatio, 4 * window.devicePixelRatio);
+        ctx.fillStyle = '#c9d1d9';
+        ctx.fillText(s.label, lx + 20 * window.devicePixelRatio, ly + 8 * window.devicePixelRatio);
+        lx += 190 * window.devicePixelRatio;
+      }
+    }
+
+    async function loadResults() {
+      const res = await fetch('./results.json');
+      return await res.json();
+    }
+
+    function makeCharts(rows) {
+      const labels = rows.map(r => r.agents);
+      const avgWith = rows.map(r => r.avg_time_with_shortcut);
+      const avgWithout = rows.map(r => r.avg_time_without_shortcut);
+      const poa = rows.map(r => r.poa_with_shortcut);
+
+      drawLineChart('avgTimeChart', labels, [
+        { label: 'Avg Time (with shortcut)', values: avgWith, color: '#58a6ff' },
+        { label: 'Avg Time (without shortcut)', values: avgWithout, color: '#7ee787' }
+      ]);
+      drawLineChart('poaChart', labels, [
+        { label: 'PoA (with shortcut)', values: poa, color: '#f778ba' }
+      ], 1.0);
+    }
+
+    function populateTable(rows) {
+      const tbody = document.querySelector('#resultsTable tbody');
+      for (const r of rows) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${r.agents}</td>
+          <td>${r.ne_with_shortcut.toFixed(3)}</td>
+          <td>${r.ne_without_shortcut.toFixed(3)}</td>
+          <td>${r.social_optimum_with_shortcut.toFixed(3)}</td>
+          <td>${r.poa_with_shortcut.toFixed(3)}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+
+      const first = rows[0];
+      const last = rows[rows.length - 1];
+      document.getElementById('summary').textContent =
+        `At ${first.agents}-${last.agents} agents, shortcut-enabled selfish routing consistently yields higher average travel time and PoA > 1, illustrating Braess's paradox.`;
+    }
+
+    loadResults().then(rows => {
+      makeCharts(rows);
+      populateTable(rows);
+      window.addEventListener('resize', () => makeCharts(rows));
+    }).catch(err => {
+      document.getElementById('summary').textContent = `Failed to load results: ${err}`;
+    });
+  </script>
+</body>
+</html>

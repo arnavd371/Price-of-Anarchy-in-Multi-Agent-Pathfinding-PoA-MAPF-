@@ -24,6 +24,19 @@ python main.py
 python -m unittest -v
 ```
 
+## GitHub Pages Dashboard
+
+A minimal dark-mode research dashboard is available at `docs/index.html`, powered by:
+- **Chart.js** for plots
+- **MathJax** for equations
+- `docs/results.json` for simulation output data
+
+To host on GitHub Pages (`github.io`):
+1. Go to repository **Settings → Pages**
+2. Set source to **Deploy from a branch**
+3. Choose branch (e.g. `main`) and folder **`/docs`**
+4. Save; GitHub will publish the site URL
+
 ## Main API
 
 Located in `src/poa_mapf/core.py`.

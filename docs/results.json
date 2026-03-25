@@ -1,0 +1,56 @@
+[
+  {
+    "agents": 10,
+    "ne_with_shortcut": 18.2,
+    "ne_without_shortcut": 15.0,
+    "social_optimum_with_shortcut": 15.0,
+    "poa_with_shortcut": 1.213333,
+    "avg_time_with_shortcut": 1.82,
+    "avg_time_without_shortcut": 1.5
+  },
+  {
+    "agents": 20,
+    "ne_with_shortcut": 38.1,
+    "ne_without_shortcut": 30.0,
+    "social_optimum_with_shortcut": 30.0,
+    "poa_with_shortcut": 1.27,
+    "avg_time_with_shortcut": 1.905,
+    "avg_time_without_shortcut": 1.5
+  },
+  {
+    "agents": 30,
+    "ne_with_shortcut": 58.066667,
+    "ne_without_shortcut": 45.0,
+    "social_optimum_with_shortcut": 45.0,
+    "poa_with_shortcut": 1.29037,
+    "avg_time_with_shortcut": 1.935556,
+    "avg_time_without_shortcut": 1.5
+  },
+  {
+    "agents": 40,
+    "ne_with_shortcut": 78.05,
+    "ne_without_shortcut": 60.0,
+    "social_optimum_with_shortcut": 60.0,
+    "poa_with_shortcut": 1.300833,
+    "avg_time_with_shortcut": 1.95125,
+    "avg_time_without_shortcut": 1.5
+  },
+  {
+    "agents": 50,
+    "ne_with_shortcut": 98.04,
+    "ne_without_shortcut": 75.0,
+    "social_optimum_with_shortcut": 75.0,
+    "poa_with_shortcut": 1.3072,
+    "avg_time_with_shortcut": 1.9608,
+    "avg_time_without_shortcut": 1.5
+  },
+  {
+    "agents": 60,
+    "ne_with_shortcut": 118.033333,
+    "ne_without_shortcut": 90.0,
+    "social_optimum_with_shortcut": 90.0,
+    "poa_with_shortcut": 1.311481,
+    "avg_time_with_shortcut": 1.967222,
+    "avg_time_without_shortcut": 1.5
+  }
+]
