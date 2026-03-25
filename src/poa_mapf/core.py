@@ -460,6 +460,8 @@ def barabasi_albert_graph(
         total_degree = sum(degrees.values())
         targets = set()
         while len(targets) < m:
+            # Subtract a tiny epsilon so random draw stays strictly below total_degree.
+            # This avoids rare floating-point boundary cases where no node is selected.
             r = rng.uniform(0, total_degree - 1e-9)
             upto = 0.0
             chosen = 0

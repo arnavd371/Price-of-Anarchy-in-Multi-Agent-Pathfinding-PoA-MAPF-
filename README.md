@@ -27,8 +27,8 @@ python -m unittest -v
 ## GitHub Pages Dashboard
 
 A minimal dark-mode research dashboard is available at `docs/index.html`, powered by:
-- **Chart.js** for plots
-- **MathJax** for equations
+- **Native HTML5 Canvas** for plots
+- **Styled HTML/Unicode math text** for equations
 - `docs/results.json` for simulation output data
 
 To host on GitHub Pages (`github.io`):
