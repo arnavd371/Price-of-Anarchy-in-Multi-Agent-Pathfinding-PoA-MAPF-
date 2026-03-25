@@ -175,7 +175,7 @@ def iterative_best_response(
         for e in p:
             loads[e] += 1
 
-    adversarial_count = int(round(n_agents * adversarial_fraction))
+    adversarial_count = int(n_agents * adversarial_fraction)
     adversarial = set(range(adversarial_count))
     memories: List[Dict[EdgeKey, float]] = [{k: 0.0 for k in graph.edges().keys()} for _ in range(n_agents)]
 
@@ -460,7 +460,7 @@ def barabasi_albert_graph(
         total_degree = sum(degrees.values())
         targets = set()
         while len(targets) < m:
-            r = rng.uniform(0, total_degree)
+            r = rng.uniform(0, total_degree - 1e-9)
             upto = 0.0
             chosen = 0
             for node, deg in degrees.items():
@@ -493,12 +493,13 @@ def build_braess_graph(
 ) -> Tuple[CongestionGraph, str, str]:
     g = CongestionGraph()
     power = 1 if linear else 4
-    variable_alpha = 1.0 / max(1.0, demand_scale) if linear else 1.0
-    # Classic Braess-like setup
-    g.add_edge("s", "a", alpha=variable_alpha, beta=0.0, power=power, name="s-a")
+    demand_scaled_alpha = 1.0 / max(1.0, demand_scale) if linear else 1.0
+    # Creates a 4-node Braess network with two parallel paths (s→a→t and s→b→t)
+    # and optional zero-cost shortcut (a→b).
+    g.add_edge("s", "a", alpha=demand_scaled_alpha, beta=0.0, power=power, name="s-a")
     g.add_edge("a", "t", alpha=0.0, beta=1.0, power=power, name="a-t")
     g.add_edge("s", "b", alpha=0.0, beta=1.0, power=power, name="s-b")
-    g.add_edge("b", "t", alpha=variable_alpha, beta=0.0, power=power, name="b-t")
+    g.add_edge("b", "t", alpha=demand_scaled_alpha, beta=0.0, power=power, name="b-t")
     if include_shortcut:
         g.add_edge("a", "b", alpha=0.0, beta=0.0, power=power, name="a-b-shortcut")
     return g, "s", "t"
