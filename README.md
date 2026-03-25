@@ -37,6 +37,14 @@ To host on GitHub Pages (`github.io`):
 3. Choose branch (e.g. `main`) and folder **`/docs`**
 4. Save; GitHub will publish the site URL
 
+For this repository, the expected project Pages URL is:
+
+`https://arnavd371.github.io/Price-of-Anarchy-in-Multi-Agent-Pathfinding-PoA-MAPF-/`
+
+Dashboard page:
+
+`https://arnavd371.github.io/Price-of-Anarchy-in-Multi-Agent-Pathfinding-PoA-MAPF-/docs/`
+
 ## Main API
 
 Located in `src/poa_mapf/core.py`.
